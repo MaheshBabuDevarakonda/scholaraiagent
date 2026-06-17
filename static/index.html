@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScholarScan AI - Student Admission & Visa Eligibility Evaluator</title>
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <span class="logo-icon">🎓</span>
+                <div>
+                    <h1>ScholarScan <span class="badge-ai">AI</span></h1>
+                    <p class="subtitle">Intelligent Student Admission & Visa Eligibility Evaluator</p>
+                </div>
+            </div>
+            <div class="system-status" id="systemStatus">
+                <span class="status-dot green"></span>
+                <span class="status-text">System Active</span>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="dashboard-grid">
+            
+            <!-- Left Panel: Input Profile Form -->
+            <section class="panel-card input-panel">
+                <div class="panel-header">
+                    <h2>Student Profile</h2>
+                    <p class="panel-desc">Enter the applicant's academic and financial credentials</p>
+                </div>
+                
+                <form id="evaluationForm" class="profile-form">
+                    
+                    <div class="form-group">
+                        <label for="destination">Target Destination</label>
+                        <select id="destination" required>
+                            <option value="" disabled selected>Select destination</option>
+                            <option value="UK">United Kingdom (UK)</option>
+                            <option value="Canada">Canada</option>
+                            <option value="USA">United States (USA)</option>
+                            <option value="Australia">Australia</option>
+                        </select>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gpa">Academic Grade</label>
+                            <input type="number" id="gpa" step="0.01" min="0" placeholder="e.g. 7.5 or 75" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="gpa_scale">GPA Scale</label>
+                            <select id="gpa_scale" required>
+                                <option value="10">10-Point Scale</option>
+                                <option value="4">4-Point Scale</option>
+                                <option value="100">100% (Percentage)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="english_test">English Test</label>
+                            <select id="english_test" required>
+                                <option value="IELTS">IELTS</option>
+                                <option value="PTE">PTE Academic</option>
+                                <option value="TOEFL">TOEFL iBT</option>
+                                <option value="None">None / Waived</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="english_score">Overall Score</label>
+                            <input type="number" id="english_score" step="0.1" min="0" placeholder="e.g. 6.5 or 58" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="budget">Annual Budget (₹ Lakhs)</label>
+                            <input type="number" id="budget" min="0" placeholder="e.g. 18" required>
+                            <span class="input-tip">Includes tuition & living costs</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="backlogs">Backlogs</label>
+                            <input type="number" id="backlogs" min="0" value="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="gap_years">Study Gap (Years)</label>
+                            <input type="number" id="gap_years" min="0" value="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="work_exp">Work Exp (Years)</label>
+                            <input type="number" id="work_exp" min="0" value="0" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary" id="btnSubmit">
+                        <span class="btn-text">Evaluate Profile</span>
+                        <span class="spinner hidden"></span>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Right Panel: Results & Analytics Dashboard -->
+            <section class="panel-card results-panel" id="resultsPanel">
+                
+                <!-- Initial State Placeholder -->
+                <div class="placeholder-state" id="placeholderState">
+                    <div class="placeholder-icon">📊</div>
+                    <h3>Awaiting Evaluation</h3>
+                    <p>Fill out the student's profile on the left and click "Evaluate Profile" to generate a detailed compliance and recommendation report.</p>
+                </div>
+
+                <!-- Active Results Content (Hidden initially) -->
+                <div class="results-content hidden" id="resultsContent">
+                    
+                    <!-- Scorecard Header -->
+                    <div class="scorecard-header">
+                        <div class="score-circle-container">
+                            <svg class="progress-ring" width="120" height="120">
+                                <circle class="progress-ring__circle-bg" stroke="#1e293b" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" />
+                                <circle class="progress-ring__circle" stroke="#10b981" stroke-width="8" fill="transparent" r="50" cx="60" cy="60" id="scoreRing" />
+                            </svg>
+                            <div class="score-text">
+                                <span id="lblScore">0</span>
+                                <span class="score-max">/100</span>
+                            </div>
+                        </div>
+                        <div class="status-summary">
+                            <div class="badge-status" id="lblStatus">ELIGIBLE</div>
+                            <h3 class="assessment-title">Admissions & Visa Fit</h3>
+                            <p class="assessment-subtitle" id="lblEngineMode">AI Evaluated</p>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Assessment Accordion/Grid -->
+                    <div class="assessment-grid">
+                        <div class="assessment-card">
+                            <div class="card-icon">🎓</div>
+                            <div class="card-info">
+                                <h4>Academic Standing</h4>
+                                <p id="lblAcademicAnalysis">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="assessment-card">
+                            <div class="card-icon">🗣️</div>
+                            <div class="card-info">
+                                <h4>Language Fit</h4>
+                                <p id="lblEnglishAnalysis">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="assessment-card">
+                            <div class="card-icon">💰</div>
+                            <div class="card-info">
+                                <h4>Financial Feasibility</h4>
+                                <p id="lblFinancialAnalysis">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="assessment-card">
+                            <div class="card-icon">⏳</div>
+                            <div class="card-info">
+                                <h4>Study Gaps & Continuity</h4>
+                                <p id="lblGapAnalysis">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recommended Universities -->
+                    <div class="section-container">
+                        <h3>Matching University Suggestions</h3>
+                        <div class="university-list" id="lstUniversities">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Recommendations / Gaps checklist -->
+                    <div class="section-container">
+                        <h3>Admissions & Visa Recommendations</h3>
+                        <ul class="checklist-items" id="lstRecommendations">
+                            <!-- Injected dynamically -->
+                        </ul>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script src="/static/app.js"></script>
+</body>
+</html>
