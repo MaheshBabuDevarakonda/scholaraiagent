@@ -1,43 +1,53 @@
-# ScholarScan AI: Intelligent Student Eligibility & Course Recommender
+# AI Engineering & Multimodal Systems Portfolio
 
-ScholarScan AI is a lightweight, high-impact AI assistant designed for B2B/B2C international student recruitment. It automates the initial profile screening process for global study destinations (UK, Canada, USA, Australia) by analyzing academic credentials, English test scores, gap years, and budgets, generating a detailed visa and admission eligibility report.
-
----
-
-## 🌟 Key Features
-
-1. **Admissions Eligibility Check**: Validates student grades (supporting 10-point scales, 4-point scales, and percentages) against minimum university benchmarks.
-2. **English Proficiency Evaluator**: Evaluates IELTS, PTE, or TOEFL scores for visa compliance and admission eligibility.
-3. **Financial Feasibility Audit**: Compares student annual budgets against real-world living and tuition expectations for the target destination.
-4. **Study Gap Assessment**: Flags potential visa refusal risks based on gap years and suggests necessary career documentation.
-5. **Matched Universities**: Dynamically recommends target institutions and courses with a clear admission rationale.
-6. **Dual Mode Architecture (Production Ready)**:
-   - **AI Mode**: Uses `gemini-2.5-flash` to generate personalized, deep eligibility reports.
-   - **Offline Mock Mode**: A built-in Python heuristics rule engine that runs automatically if no Gemini API Key is configured, enabling instant testing without setup.
+This repository contains two production-ready AI applications demonstrating end-to-end pipelines, API orchestrations, multi-model fallback loops, and edge device optimization.
 
 ---
 
-## 🛠️ Technology Stack
+## 🚀 Project 1: Real-Time Multimodal OCR & Translation Pipeline (`realtime_ocr_translator.py`)
 
-- **Backend**: FastAPI (Python 3.12+)
-- **WSGI/ASGI Server**: Uvicorn
-- **AI Integration**: Google GenAI Python SDK (`google-genai`)
-- **Frontend**: Vanilla HTML5, Custom CSS3 (featuring responsive dark-theme glassmorphism), and Vanilla JavaScript
+An assistive real-time computer vision and translation pipeline built for visually impaired users. It captures English text via camera frames, preprocesses the image, runs local OCR, translates the text to Telugu, and converts it to audio speech.
+
+### 🌟 Key Features
+- **Smart Reading Order**: Custom NLP sorting algorithm grouping bounding boxes into lines based on baseline Y-coordinate proximity and sorting horizontally by X-coordinates to handle multi-column text correctly.
+- **Symbol & Logo Filtering**: Unicode-category filters and bounding box aspect-ratio checks to filter out UI symbols and non-alphanumeric noise before translation.
+- **3-Tier Translation Fallback Loop**: 
+  - *Primary (Online):* Google Translator (fast & natural).
+  - *Secondary (Local Offline):* MarianMT (`Helsinki-NLP/opus-mt-en-mul` - ~300MB).
+  - *Tertiary (Local Offline):* NLLB-Distilled (`facebook/nllb-200-distilled-600M` - ~600MB).
+- **2-Tier TTS Speech Fallback Loop**: 
+  - *Primary:* gTTS (online, natural).
+  - *Secondary:* `espeak-ng` (local offline synthesized voice).
+
+### 🛠️ Core Technologies
+- **Computer Vision:** OpenCV (preprocessing, deskewing, sharpening)
+- **OCR:** RapidOCR (multi-pass inference on normal & inverted frames)
+- **NLP & Translation:** HuggingFace Transformers, PyTorch, SymSpell, spaCy
+- **Interface:** Google Colab JS integration for camera streaming
 
 ---
 
-## 🚀 Getting Started
+## 🎓 Project 2: ScholarScan AI — Student Eligibility Screener (`main.py`)
 
-### Prerequisites
-- Python 3.10 or higher
-- An optional Gemini API Key (get one from Google AI Studio)
+A lightweight B2B/B2C SaaS application that automates the initial admissions and visa screening of international students applying to the UK, Canada, USA, and Australia.
 
-### Installation
+### 🌟 Key Features
+- **Structured JSON Audits**: Uses `gemini-2.5-flash` with JSON schema enforcement to parse grades, IELTS scores, budgets, and gap years into structured risk reports.
+- **Fail-Safe Policy Engine (Mock Mode)**: Intercepts LLM rate limits and API credential failures to seamlessly degrade to a local Python heuristics validator, ensuring 100% application uptime.
+- **Interactive UI**: A single-page dashboard with glassmorphism styling, real-time validation forms, and animated SVG score meters.
+
+### 🛠️ Core Technologies
+- **Backend:** FastAPI, Uvicorn, Pydantic, Google GenAI SDK
+- **Frontend:** Vanilla HTML5, CSS3, JavaScript (Fetch API)
+
+---
+
+## 📦 Setup & Installation
 
 1. **Clone the repository**:
    ```bash
-   git clone <your-github-repo-url>
-   cd aiagent
+   git clone https://github.com/MaheshBabuDevarakonda/scholaraiagent.git
+   cd scholaraiagent
    ```
 
 2. **Install dependencies**:
@@ -45,34 +55,12 @@ ScholarScan AI is a lightweight, high-impact AI assistant designed for B2B/B2C i
    pip install -r requirements.txt
    ```
 
-3. **Set up your API Key (Optional but Recommended)**:
-   - On Windows (Command Prompt):
-     ```cmd
-     set GEMINI_API_KEY=your_actual_api_key_here
-     ```
-   - On Windows (PowerShell):
-     ```powershell
-     $env:GEMINI_API_KEY="your_actual_api_key_here"
-     ```
-   - On macOS/Linux:
-     ```bash
-     export GEMINI_API_KEY="your_actual_api_key_here"
-     ```
+3. **Run Project 1 (OCR & Translation)**:
+   ```bash
+   python realtime_ocr_translator.py
+   ```
 
-4. **Run the server**:
+4. **Run Project 2 (ScholarScan AI)**:
    ```bash
    python main.py
    ```
-
-5. **Open the App**:
-   Navigate to `http://localhost:8000` in your web browser.
-
----
-
-## 📐 Architecture & Workflow
-
-1. The frontend collects student profile metrics and dispatches an asynchronous `POST` JSON payload to `/api/evaluate`.
-2. The FastAPI backend validates fields, converts GPA scales, and checks if a `GEMINI_API_KEY` is present.
-3. **If configured**, backend structures a prompt and queries `gemini-2.5-flash` using structured JSON output configurations.
-4. **If offline**, backend runs a Python heuristics engine to compute an eligibility score (out of 100), assign risk colors (Green/Yellow/Red), and select mock universities.
-5. The frontend handles CSS transitions, animates the progress score ring, and populates the dashboard reports.
