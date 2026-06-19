@@ -1,6 +1,6 @@
 # AI Engineering & Multimodal Systems Portfolio
 
-This repository contains two production-ready AI applications demonstrating end-to-end pipelines, API orchestrations, multi-model fallback loops, and edge device optimization.
+This repository contains two production-ready AI applications demonstrating end-to-end pipelines, API orchestrations, multi-model fallback loops, vector search (RAG), tool calling, and evaluation harnesses.
 
 ---
 
@@ -19,26 +19,17 @@ An assistive real-time computer vision and translation pipeline built for visual
   - *Primary:* gTTS (online, natural).
   - *Secondary:* `espeak-ng` (local offline synthesized voice).
 
-### 🛠️ Core Technologies
-- **Computer Vision:** OpenCV (preprocessing, deskewing, sharpening)
-- **OCR:** RapidOCR (multi-pass inference on normal & inverted frames)
-- **NLP & Translation:** HuggingFace Transformers, PyTorch, SymSpell, spaCy
-- **Interface:** Google Colab JS integration for camera streaming
-
 ---
 
-## 🎓 Project 2: ScholarScan AI — Student Eligibility Screener (`main.py`)
+## 🎓 Project 2: ScholarScan AI — RAG & Tool-Calling Agent (`main.py`)
 
-A lightweight B2B/B2C SaaS application that automates the initial admissions and visa screening of international students applying to the UK, Canada, USA, and Australia.
+An automated admissions and visa eligibility evaluator that ingests unstructured PDF/text university rules, searches the database using vector embeddings (RAG), and calls tools to evaluate student profiles.
 
 ### 🌟 Key Features
-- **Structured JSON Audits**: Uses `gemini-2.5-flash` with JSON schema enforcement to parse grades, IELTS scores, budgets, and gap years into structured risk reports.
-- **Fail-Safe Policy Engine (Mock Mode)**: Intercepts LLM rate limits and API credential failures to seamlessly degrade to a local Python heuristics validator, ensuring 100% application uptime.
-- **Interactive UI**: A single-page dashboard with glassmorphism styling, real-time validation forms, and animated SVG score meters.
-
-### 🛠️ Core Technologies
-- **Backend:** FastAPI, Uvicorn, Pydantic, Google GenAI SDK
-- **Frontend:** Vanilla HTML5, CSS3, JavaScript (Fetch API)
+- **Knowledge Ingestion & Chunking (`data_ingestion.py`)**: Slides unstructured guidelines into chunks and indexes them using Gemini embeddings (`text-embedding-004`) with local JSON vector store persistence.
+- **Agentic Tool Calling (`agent_engine.py`)**: The evaluator agent leverages function calling, invoking a `query_visa_rules` vector search tool to retrieve context before generating structured JSON scorecards.
+- **Evaluation Harness (`eval_harness.py`)**: A batch evaluation regression runner that measures prediction accuracy and retrieval success rate against a ground-truth test suite.
+- **Fail-Safe Policy Engine**: Automatically catches API exceptions and rate limits to degrade to local Python heuristics, ensuring 100% application uptime.
 
 ---
 
@@ -55,12 +46,18 @@ A lightweight B2B/B2C SaaS application that automates the initial admissions and
    pip install -r requirements.txt
    ```
 
-3. **Run Project 1 (OCR & Translation)**:
+3. **Build the RAG Vector Database**:
    ```bash
-   python realtime_ocr_translator.py
+   python data_ingestion.py
    ```
 
-4. **Run Project 2 (ScholarScan AI)**:
+4. **Run the Evaluation Harness**:
+   ```bash
+   python eval_harness.py
+   ```
+
+5. **Run the Web App**:
    ```bash
    python main.py
    ```
+

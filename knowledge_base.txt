@@ -1,0 +1,23 @@
+=== REGION: UNITED KINGDOM (UK) ===
+- Academic Requirements: For direct entry into master's degrees, most universities require a minimum CGPA of 6.0/10 (55%-60% equivalent) from a recognized Indian university. Prestigious Russell Group universities typically raise the bar to 7.0/10 or 65% minimum.
+- English Requirements: A minimum overall IELTS score of 6.0 (with no individual band score below 5.5) is required for postgraduate studies. High-tier universities often require IELTS 6.5 overall (minimum 6.0 in all bands). An English waiver is occasionally granted if the student scored 70%+ in Class XII English, depending on the university.
+- Financial Guidelines: To obtain a student visa, students must prove they have enough funds to cover the first year's tuition fees plus living expenses. The official living expense requirement is £1,334 per month for up to 9 months (£12,006 total) inside London, and £1,023 per month (£9,207 total) outside London. Funds must be held in a bank account for a continuous period of at least 28 days before the visa application.
+- Study Gaps and Backlogs: Universities generally accept study gaps of up to 2-3 years without justification. Gaps between 3-5 years must be backed by official employment letters, salary slips, or experience certificates. Backlogs are scrutinized: more than 5-8 active or history backlogs will lead to application rejection at standard universities.
+
+=== REGION: CANADA ===
+- Academic Requirements: Most Canadian universities and colleges require a minimum GPA of 2.75/4.0 or 60% in a bachelor's degree. For the SDS (Student Direct Stream) program, academic thresholds are strictly audited.
+- English Requirements: For SDS visa processing, students must score a minimum overall IELTS score of 6.0 with no individual band below 6.0. Alternatively, a PTE score of 60+ is acceptable. Non-SDS applications may accept a 5.5 in one band, but they face a much higher rate of visa rejection.
+- Financial Guidelines: Under the current rules, students must purchase a Guaranteed Investment Certificate (GIC) of $20,635 CAD from an approved Canadian financial institution to cover first-year living expenses, in addition to paying the first year's tuition fee.
+- Study Gaps: Canada is very strict regarding study gaps. Gaps of more than 2 years since last study require solid work experience documentation, tax return records (ITRs), and salary credit proof. Any unexplained gap of over 1 year is a common reason for visa rejection.
+
+=== REGION: UNITED STATES (USA) ===
+- Academic Requirements: Direct entry to MS programs generally requires a minimum GPA of 3.0/4.0 (approx. 70%-75%). Lower GPAs may require a Pre-Master's pathway program.
+- English Requirements: Universities typically require TOEFL iBT score of 80+ or IELTS 6.5+ overall. Some mid-tier colleges accept IELTS 6.0 with additional ESL classes.
+- Financial Guidelines: For the I-20 document, students must show liquid funds covering the entire first year's cost of attendance (tuition, fees, and living expenses), which averages $35,000 to $45,000 USD (approx. ₹30-40 Lakhs INR). Proof of funds includes bank statements, fixed deposits, and loan approval letters.
+- Gaps and Backlogs: Gaps of up to 5 years are accepted if justified by engineering/technical work experience. Backlogs under 10 are generally accepted, though top-tier institutions prefer under 2.
+
+=== REGION: AUSTRALIA ===
+- Academic Requirements: Australian higher education institutions require a minimum of 55%-60% in a bachelor's degree.
+- English Requirements: The standard requirement is an overall IELTS of 6.0 (no band below 5.5) or PTE Academic score of 50+.
+- Financial Guidelines: Under the Genuine Student (GS) requirement, students must demonstrate access to funds of at least $29,710 AUD per year for living costs, plus full first-year tuition. Funds must be from acceptable sponsors (parents, spouse, self) and show a clear source of income.
+- Gaps and Backlogs: Australia is highly sensitive to study gaps. A gap of more than 1-2 years must be fully explained with tax documents, bank statements showing salary credits, and employment letters. A backlog history of more than 4-6 backlogs is frequently rejected.

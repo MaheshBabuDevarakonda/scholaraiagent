@@ -135,79 +135,16 @@ def get_mock_evaluation(profile: StudentProfile) -> Dict[str, Any]:
         "is_mock": True
     }
 
+from agent_engine import evaluate_student_profile
+
 @app.post("/api/evaluate")
 async def evaluate_student(profile: StudentProfile):
-    # Check if Gemini API key is configured
-    api_key = os.environ.get("GEMINI_API_KEY")
-    
-    if not api_key:
-        # Fallback to local rule engine (Mock Mode)
-        return get_mock_evaluation(profile)
-    
     try:
-        from google import genai
-        from google.genai import types
-
-        # Initialize the new Google GenAI client
-        client = genai.Client(api_key=api_key)
-        
-        # Build prompt
-        prompt = f"""
-        You are 'ScholarScan Evaluator', an expert AI admission officer and visa compliance auditor.
-        Analyze the following student profile for studying in {profile.destination}:
-        
-        - Academic Grade: {profile.gpa} on a scale of {profile.gpa_scale}
-        - English Proficiency: {profile.english_test} - Score: {profile.english_score}
-        - Annual Budget: {profile.budget_lakhs} Lakhs INR
-        - Study Gaps: {profile.gap_years} years
-        - Work Experience: {profile.work_exp_years} years
-        - Number of Backlogs: {profile.backlogs}
-
-        Provide a structured evaluation in JSON format. The response must follow this schema exactly, and contain NO formatting or extra text outside the JSON:
-        {{
-          "status": "Green" (for low risk, high eligibility), "Yellow" (for medium risk, conditional eligibility), or "Red" (for high risk, ineligible),
-          "score": integer (out of 100),
-          "academic_analysis": "string describing academic eligibility for the destination",
-          "english_analysis": "string describing language requirement suitability",
-          "financial_analysis": "string describing financial readiness and visa fund rules",
-          "gap_analysis": "string evaluating gap risks and work proof need",
-          "recommendations": ["list", "of", "risk", "mitigation", "steps", "or", "next", "steps"],
-          "matched_universities": [
-            {{
-              "name": "University Name",
-              "course": "Suggested Course/Program Name",
-              "rationale": "Specific explanation matching this student's profile"
-            }}
-          ]
-        }}
-        
-        Rules:
-        - Analyze the guidelines for {profile.destination} specifically (e.g. UK has strict CAS checks, Canada has SDS rules, Australia has Genuine Student requirement).
-        - Match realistic universities for their grade and budget.
-        - Output ONLY a valid JSON object. Do not include markdown code block syntax (like ```json).
-        """
-        
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=prompt,
-            config=types.GenerateContentConfig(
-                response_mime_type="application/json"
-            )
-        )
-        
-        result_text = response.text.strip()
-        
-        # Parse JSON to verify correctness
-        evaluation_data = json.loads(result_text)
-        evaluation_data["is_mock"] = False
-        return evaluation_data
-        
+        # Convert Pydantic model to dict and evaluate using RAG agent
+        result = evaluate_student_profile(profile.model_dump())
+        return result
     except Exception as e:
-        # Fallback if API call fails
-        print(f"Error calling Gemini API: {str(e)}. Falling back to mock engine.")
-        mock_res = get_mock_evaluation(profile)
-        mock_res["api_error"] = str(e)
-        return mock_res
+        raise HTTPException(status_code=500, detail=f"Agent execution failed: {str(e)}")
 
 # Serve index.html at root
 @app.get("/")
