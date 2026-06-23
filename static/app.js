@@ -34,10 +34,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const startTime = performance.now();
 
         // Pick gradient
-        if (status === 'Green') {
+        if (status === 'Eligible') {
             scoreRing.style.stroke = 'url(#ringGradGreen)';
-        } else if (status === 'Yellow') {
-            scoreRing.style.stroke = 'url(#ringGradYellow)';
         } else {
             scoreRing.style.stroke = 'url(#ringGradRed)';
         }
@@ -119,11 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Status badge
             lblStatus.className = 'status-badge';
-            lblStatus.textContent = data.status === 'Green' ? 'ELIGIBLE' : data.status === 'Yellow' ? 'CONDITIONAL' : 'AT RISK';
-            if (data.status === 'Green') {
+            lblStatus.textContent = data.status === 'Eligible' ? 'ELIGIBLE' : 'NOT POSSIBLE';
+            if (data.status === 'Eligible') {
                 lblStatus.classList.add('status-green');
-            } else if (data.status === 'Yellow') {
-                lblStatus.classList.add('status-yellow');
             } else {
                 lblStatus.classList.add('status-red');
             }

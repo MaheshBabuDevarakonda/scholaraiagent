@@ -22,7 +22,7 @@ TEST_SUITE = [
             "funds_lakhs": 20.0,
             "purpose": "Study"
         },
-        "expected_status": "Green",
+        "expected_status": "Eligible",
         "expected_retrieved_region": "CANADA"
     },
     {
@@ -39,7 +39,7 @@ TEST_SUITE = [
             "funds_lakhs": 6.0,
             "purpose": "Work"
         },
-        "expected_status": "Yellow",
+        "expected_status": "Not Possible",
         "expected_retrieved_region": "AUSTRALIA"
     },
     {
@@ -56,7 +56,7 @@ TEST_SUITE = [
             "funds_lakhs": 2.0,
             "purpose": "Tourist"
         },
-        "expected_status": "Yellow",
+        "expected_status": "Not Possible",
         "expected_retrieved_region": "UNITED KINGDOM"
     },
     {
@@ -73,7 +73,7 @@ TEST_SUITE = [
             "funds_lakhs": 15.0,
             "purpose": "PR"
         },
-        "expected_status": "Green",
+        "expected_status": "Eligible",
         "expected_retrieved_region": "UNITED STATES"
     }
 ]

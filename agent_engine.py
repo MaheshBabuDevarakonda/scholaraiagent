@@ -77,10 +77,10 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
             edu_analysis += "Academic credentials satisfy entry levels."
             
         visa_options = [
-            {"name": "UK Student Route", "status": "Eligible" if score >= 80 else "Potential" if score >= 50 else "Ineligible", "rationale": "Requires Confirmation of Acceptance for Studies (CAS) and 28-day funds rule."},
-            {"name": "Canada Study Permit (SDS)", "status": "Eligible" if score >= 85 and eng_score >= 6.0 else "Ineligible", "rationale": "Requires GIC $20,635 CAD payment and IELTS 6.0 in all bands."},
-            {"name": "US F-1 Student Visa", "status": "Eligible" if score >= 75 else "Potential" if score >= 50 else "Ineligible", "rationale": "Requires I-20 form and demonstration of strong ties to home country during F-1 interview."},
-            {"name": "Australia Subclass 500", "status": "Eligible" if score >= 80 else "Potential" if score >= 50 else "Ineligible", "rationale": "Evaluated under the Genuine Student (GS) requirement."}
+            {"name": "UK Student Route", "status": "Eligible" if score >= 80 else "Not Possible", "rationale": "Requires Confirmation of Acceptance for Studies (CAS) and 28-day funds rule."},
+            {"name": "Canada Study Permit (SDS)", "status": "Eligible" if score >= 85 and eng_score >= 6.0 else "Not Possible", "rationale": "Requires GIC $20,635 CAD payment and IELTS 6.0 in all bands."},
+            {"name": "US F-1 Student Visa", "status": "Eligible" if score >= 75 else "Not Possible", "rationale": "Requires I-20 form and demonstration of strong ties to home country during F-1 interview."},
+            {"name": "Australia Subclass 500", "status": "Eligible" if score >= 80 else "Not Possible", "rationale": "Evaluated under the Genuine Student (GS) requirement."}
         ]
 
     # 2. Evaluate WORK Visa
@@ -134,10 +134,10 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
             edu_analysis += "Degree satisfies skilled worker eligibility benchmarks."
             
         visa_options = [
-            {"name": "UK Skilled Worker Visa", "status": "Eligible" if score >= 75 else "Potential" if score >= 50 else "Ineligible", "rationale": "Requires job offer and Certificate of Sponsorship from a licensed UK employer."},
-            {"name": "Canada LMIA Work Permit", "status": "Eligible" if score >= 70 else "Potential" if score >= 50 else "Ineligible", "rationale": "Requires employer to obtain a positive Labour Market Impact Assessment."},
-            {"name": "US H-1B Specialty Occupation", "status": "Eligible" if score >= 80 else "Potential" if score >= 50 else "Ineligible", "rationale": "Requires a Bachelor's degree and employer sponsorship under the annual lottery."},
-            {"name": "Australia Subclass 482 (TSS)", "status": "Eligible" if score >= 75 else "Potential" if score >= 50 else "Ineligible", "rationale": "Requires nomination by approved sponsor and 2 years relevant experience."}
+            {"name": "UK Skilled Worker Visa", "status": "Eligible" if score >= 75 else "Not Possible", "rationale": "Requires job offer and Certificate of Sponsorship from a licensed UK employer."},
+            {"name": "Canada LMIA Work Permit", "status": "Eligible" if score >= 70 else "Not Possible", "rationale": "Requires employer to obtain a positive Labour Market Impact Assessment."},
+            {"name": "US H-1B Specialty Occupation", "status": "Eligible" if score >= 80 else "Not Possible", "rationale": "Requires a Bachelor's degree and employer sponsorship under the annual lottery."},
+            {"name": "Australia Subclass 482 (TSS)", "status": "Eligible" if score >= 75 else "Not Possible", "rationale": "Requires nomination by approved sponsor and 2 years relevant experience."}
         ]
 
     # 3. Evaluate TOURIST Visa
@@ -171,10 +171,10 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
         edu_analysis += "Education does not impact tourist visa assessment."
         
         visa_options = [
-            {"name": "UK Standard Visitor Visa", "status": "Eligible" if score >= 70 else "Potential" if score >= 45 else "Ineligible", "rationale": "Must demonstrate genuine intention to visit and leave the UK."},
-            {"name": "Canada Visitor Visa (TRV)", "status": "Eligible" if score >= 70 else "Potential" if score >= 45 else "Ineligible", "rationale": "Requires proof of family ties, assets, and flight/hotel bookings."},
-            {"name": "US B-2 Tourist Visa", "status": "Eligible" if score >= 75 else "Potential" if score >= 50 else "Ineligible", "rationale": "Evaluated in person. Presumption of immigrant intent must be refuted."},
-            {"name": "Australia Visitor Subclass 600", "status": "Eligible" if score >= 70 else "Potential" if score >= 45 else "Ineligible", "rationale": "Assessed under standard Genuine Temporary Entrant conditions."}
+            {"name": "UK Standard Visitor Visa", "status": "Eligible" if score >= 70 else "Not Possible", "rationale": "Must demonstrate genuine intention to visit and leave the UK."},
+            {"name": "Canada Visitor Visa (TRV)", "status": "Eligible" if score >= 70 else "Not Possible", "rationale": "Requires proof of family ties, assets, and flight/hotel bookings."},
+            {"name": "US B-2 Tourist Visa", "status": "Eligible" if score >= 75 else "Not Possible", "rationale": "Evaluated in person. Presumption of immigrant intent must be refuted."},
+            {"name": "Australia Visitor Subclass 600", "status": "Eligible" if score >= 70 else "Not Possible", "rationale": "Assessed under standard Genuine Temporary Entrant conditions."}
         ]
 
     # 4. Evaluate PR Visa
@@ -231,17 +231,13 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
             fin_analysis += "Meets minimum settlement fund guidelines."
             
         visa_options = [
-            {"name": "Canada Express Entry (FSW)", "status": "Eligible" if score >= 80 else "Potential" if score >= 60 else "Ineligible", "rationale": "Points-based selection based on age, education, and language skills."},
-            {"name": "Australia Subclass 189/190", "status": "Eligible" if score >= 75 else "Potential" if score >= 60 else "Ineligible", "rationale": "Requires at least 65 points in points-test and positive skills assessment."},
-            {"name": "US EB-2/EB-3 Green Card", "status": "Eligible" if score >= 80 else "Potential" if score >= 55 else "Ineligible", "rationale": "Requires employer sponsorship and labor certification (PERM)."},
-            {"name": "UK Indefinite Leave (ILR)", "status": "Eligible" if score >= 70 and work_exp >= 5 else "Ineligible", "rationale": "Requires 5 years continuous residency on an eligible work visa."}
+            {"name": "Canada Express Entry (FSW)", "status": "Eligible" if score >= 80 else "Not Possible", "rationale": "Points-based selection based on age, education, and language skills."},
+            {"name": "Australia Subclass 189/190", "status": "Eligible" if score >= 75 else "Not Possible", "rationale": "Requires at least 65 points in points-test and positive skills assessment."},
+            {"name": "US EB-2/EB-3 Green Card", "status": "Eligible" if score >= 80 else "Not Possible", "rationale": "Requires employer sponsorship and labor certification (PERM)."},
+            {"name": "UK Indefinite Leave (ILR)", "status": "Eligible" if score >= 70 and work_exp >= 5 else "Not Possible", "rationale": "Requires 5 years continuous residency on an eligible work visa."}
         ]
         
-    status = "Green"
-    if score < 50:
-        status = "Red"
-    elif score < 80:
-        status = "Yellow"
+    status = "Eligible" if score == 100 else "Not Possible"
         
     # Match the specific destination's option as the primary recommendation
     matched_option = next((v for v in visa_options if dest in v["name"].upper()), None)
