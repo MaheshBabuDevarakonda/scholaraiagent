@@ -60,6 +60,14 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
             score -= 20
             risks.append("IELTS score is below standard direct entry student visa threshold (6.0).")
             eng_analysis += "Below standard direct entry IELTS requirement."
+        elif eng_test == "PTE" and eng_score < 50:
+            score -= 20
+            risks.append("PTE score is below standard student visa threshold (50).")
+            eng_analysis += "Below standard direct entry PTE requirement."
+        elif eng_test == "TOEFL" and eng_score < 80:
+            score -= 20
+            risks.append("TOEFL score is below standard student visa threshold (80).")
+            eng_analysis += "Below standard direct entry TOEFL requirement."
         else:
             eng_analysis += "Meets language requirements for student visa."
             
@@ -89,6 +97,9 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
         if work_exp < 2:
             score -= 30
             risks.append("Work experience is under 2 years. Most skilled worker visa routes require at least 2 years of relevant experience.")
+            if dest == "AUSTRALIA":
+                score -= 20  # Hard TSS 482 blocker
+                risks.append("Australia Subclass 482 (TSS) skilled visa requires a minimum of 2 years post-qualification work experience.")
             exp_analysis += "Insufficient professional experience for skilled visa routes."
         else:
             exp_analysis += "Meets basic work experience requirements."
@@ -113,7 +124,15 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
         elif eng_test == "IELTS" and eng_score < 5.0:
             score -= 15
             risks.append("IELTS score is below standard work visa threshold (5.0).")
-            eng_analysis += "Below minimum language score."
+            eng_analysis += "Below minimum IELTS score (5.0)."
+        elif eng_test == "PTE" and eng_score < 36:
+            score -= 15
+            risks.append("PTE score is below standard work visa threshold (36).")
+            eng_analysis += "Below minimum PTE score (36)."
+        elif eng_test == "TOEFL" and eng_score < 35:
+            score -= 15
+            risks.append("TOEFL score is below standard work visa threshold (35).")
+            eng_analysis += "Below minimum TOEFL score (35)."
         else:
             eng_analysis += "Satisfies basic language requirements."
             
@@ -129,6 +148,9 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
         if education == "High School":
             score -= 15
             risks.append("Highest education is High School. Most skilled work visas require a university degree or equivalent trade diploma.")
+            if dest == "USA":
+                score -= 30  # Hard H-1B blocker
+                risks.append("US H-1B specialty occupation visa requires a minimum of a Bachelor's degree or equivalent.")
             edu_analysis += "Academics below standard professional visa thresholds."
         else:
             edu_analysis += "Degree satisfies skilled worker eligibility benchmarks."
@@ -210,12 +232,24 @@ def run_mock_agent_evaluation(profile: Dict[str, Any], context: str) -> Dict[str
         elif eng_test == "IELTS" and eng_score < 7.0:
             score -= 20
             risks.append("IELTS score is below 7.0. A high English score (IELTS 7.0/8.0 equivalent) is vital to be competitive in PR pools.")
-            eng_analysis += "Below competitive language thresholds."
+            eng_analysis += "Below competitive IELTS thresholds."
+        elif eng_test == "PTE" and eng_score < 65:
+            score -= 20
+            risks.append("PTE score is below 65. A high English score (PTE 65/79 equivalent) is vital to be competitive in PR pools.")
+            eng_analysis += "Below competitive PTE thresholds."
+        elif eng_test == "TOEFL" and eng_score < 94:
+            score -= 20
+            risks.append("TOEFL score is below 94. A high English score (TOEFL 94/110 equivalent) is vital to be competitive in PR pools.")
+            eng_analysis += "Below competitive TOEFL thresholds."
         else:
             eng_analysis += "Excellent language scores. Attracts maximum PR points."
             
         # Education check
-        if education in ["High School", "Bachelor's"]:
+        if education == "High School":
+            score -= 30
+            risks.append("Highest education is High School. Points-based PR systems require a post-secondary degree/diploma to be competitive.")
+            edu_analysis += "Lacks required post-secondary credentials for points-based PR."
+        elif education == "Bachelor's":
             score -= 15
             risks.append("Education is below Master's. Having a Master's or PhD significantly boosts PR competitiveness.")
             edu_analysis += "Lacks postgraduate points boost."
