@@ -1,97 +1,95 @@
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('evaluationForm');
     const btnSubmit = document.getElementById('btnSubmit');
-    const spinner = btnSubmit.querySelector('.spinner');
     const btnText = btnSubmit.querySelector('.btn-text');
-    
+    const btnLoader = btnSubmit.querySelector('.btn-loader');
+
     const placeholderState = document.getElementById('placeholderState');
     const resultsContent = document.getElementById('resultsContent');
-    
+
     // Result elements
     const lblScore = document.getElementById('lblScore');
     const scoreRing = document.getElementById('scoreRing');
     const lblStatus = document.getElementById('lblStatus');
     const lblEngineMode = document.getElementById('lblEngineMode');
-    
-    const lblAcademicAnalysis = document.getElementById('lblAcademicAnalysis');
+
+    const lblEducationAnalysis = document.getElementById('lblEducationAnalysis');
     const lblEnglishAnalysis = document.getElementById('lblEnglishAnalysis');
     const lblFinancialAnalysis = document.getElementById('lblFinancialAnalysis');
-    const lblGapAnalysis = document.getElementById('lblGapAnalysis');
-    
-    const lstUniversities = document.getElementById('lstUniversities');
+    const lblAgeAnalysis = document.getElementById('lblAgeAnalysis');
+    const lblExperienceAnalysis = document.getElementById('lblExperienceAnalysis');
+
+    const lstVisaOptions = document.getElementById('lstVisaOptions');
     const lstRecommendations = document.getElementById('lstRecommendations');
 
-    // SVG Circle properties for score ring
+    // SVG ring setup
     const radius = scoreRing.r.baseVal.value;
     const circumference = 2 * Math.PI * radius;
-    
-    // Set up stroke dash arrays
     scoreRing.style.strokeDasharray = `${circumference} ${circumference}`;
     scoreRing.style.strokeDashoffset = circumference;
 
+    // ── Score Animation ──
     function setScore(score, status) {
-        // Animate count up
-        let start = 0;
-        const duration = 1000; // ms
+        const duration = 1200;
         const startTime = performance.now();
 
-        function animateCount(timestamp) {
-            const runtime = timestamp - startTime;
-            const progress = Math.min(runtime / duration, 1);
-            const currentScore = Math.floor(progress * score);
+        // Pick gradient
+        if (status === 'Green') {
+            scoreRing.style.stroke = 'url(#ringGradGreen)';
+        } else if (status === 'Yellow') {
+            scoreRing.style.stroke = 'url(#ringGradYellow)';
+        } else {
+            scoreRing.style.stroke = 'url(#ringGradRed)';
+        }
+
+        function animate(timestamp) {
+            const elapsed = timestamp - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            // Ease out cubic
+            const eased = 1 - Math.pow(1 - progress, 3);
+
+            const currentScore = Math.floor(eased * score);
             lblScore.textContent = currentScore;
-            
-            // Offset logic: offset = circumference - (pct * circumference)
-            const offset = circumference - (progress * (score / 100) * circumference);
+
+            const offset = circumference - (eased * (score / 100) * circumference);
             scoreRing.style.strokeDashoffset = offset;
 
-            if (runtime < duration) {
-                requestAnimationFrame(animateCount);
+            if (progress < 1) {
+                requestAnimationFrame(animate);
             } else {
                 lblScore.textContent = score;
                 scoreRing.style.strokeDashoffset = circumference - ((score / 100) * circumference);
             }
         }
-        
-        // Dynamic ring color based on status
-        if (status === 'Green') {
-            scoreRing.style.stroke = '#10b981'; // Success Green
-        } else if (status === 'Yellow') {
-            scoreRing.style.stroke = '#f59e0b'; // Warning Yellow
-        } else {
-            scoreRing.style.stroke = '#ef4444'; // Danger Red
-        }
 
-        requestAnimationFrame(animateCount);
+        requestAnimationFrame(animate);
     }
 
+    // ── Form Submission ──
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        
-        // Get values
+
         const profile = {
+            citizenship: document.getElementById('citizenship').value,
             destination: document.getElementById('destination').value,
-            gpa: parseFloat(document.getElementById('gpa').value),
-            gpa_scale: document.getElementById('gpa_scale').value,
+            age: parseInt(document.getElementById('age').value) || 0,
+            education: document.getElementById('education').value,
+            work_exp_years: parseInt(document.getElementById('work_exp').value) || 0,
             english_test: document.getElementById('english_test').value,
             english_score: parseFloat(document.getElementById('english_score').value) || 0,
-            budget_lakhs: parseFloat(document.getElementById('budget').value),
-            gap_years: parseInt(document.getElementById('gap_years').value) || 0,
-            work_exp_years: parseInt(document.getElementById('work_exp').value) || 0,
-            backlogs: parseInt(document.getElementById('backlogs').value) || 0
+            funds_lakhs: parseFloat(document.getElementById('funds').value) || 0,
+            purpose: document.getElementById('purpose').value
         };
 
-        // UI Loading state
+        // Loading state
         btnSubmit.disabled = true;
-        spinner.classList.remove('hidden');
-        btnText.textContent = "Analyzing Profile...";
+        btnText.classList.add('hidden');
+        btnLoader.classList.remove('hidden');
 
         try {
             const response = await fetch('/api/evaluate', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(profile)
             });
 
@@ -101,22 +99,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
 
-            // Transition Panels
+            // Transition panels
             placeholderState.classList.add('hidden');
             resultsContent.classList.remove('hidden');
 
-            // Set Engine/Model Indicator Status
+            // Re-trigger animations by removing and re-adding the class
+            resultsContent.style.animation = 'none';
+            resultsContent.offsetHeight; // force reflow
+            resultsContent.style.animation = '';
+
+            // Engine indicator
             if (data.is_mock) {
-                lblEngineMode.textContent = "Evaluated via Local Policy Engine (Mock Mode)";
-                lblEngineMode.style.color = "#f59e0b";
+                lblEngineMode.textContent = 'Local Policy Engine (Mock Mode)';
+                lblEngineMode.style.color = '#fbbf24';
             } else {
-                lblEngineMode.textContent = "AI Evaluated via Gemini 2.5";
-                lblEngineMode.style.color = "#94a3b8";
+                lblEngineMode.textContent = 'AI Evaluated via Gemini 2.5';
+                lblEngineMode.style.color = '#94a3b8';
             }
 
-            // Status Badge styling
-            lblStatus.className = 'badge-status'; // reset
-            lblStatus.textContent = data.status.toUpperCase();
+            // Status badge
+            lblStatus.className = 'status-badge';
+            lblStatus.textContent = data.status === 'Green' ? 'ELIGIBLE' : data.status === 'Yellow' ? 'CONDITIONAL' : 'AT RISK';
             if (data.status === 'Green') {
                 lblStatus.classList.add('status-green');
             } else if (data.status === 'Yellow') {
@@ -125,56 +128,90 @@ document.addEventListener('DOMContentLoaded', () => {
                 lblStatus.classList.add('status-red');
             }
 
-            // Core Analyses
-            lblAcademicAnalysis.textContent = data.academic_analysis;
+            // Analysis cards
+            lblEducationAnalysis.textContent = data.education_analysis;
             lblEnglishAnalysis.textContent = data.english_analysis;
             lblFinancialAnalysis.textContent = data.financial_analysis;
-            lblGapAnalysis.textContent = data.gap_analysis;
+            lblAgeAnalysis.textContent = data.age_analysis;
+            lblExperienceAnalysis.textContent = data.experience_analysis;
 
-            // Render matched universities
-            lstUniversities.innerHTML = '';
-            if (data.matched_universities && data.matched_universities.length > 0) {
-                data.matched_universities.forEach(uni => {
+            // Visa Options
+            lstVisaOptions.innerHTML = '';
+            if (data.visa_options && data.visa_options.length > 0) {
+                data.visa_options.forEach((opt, i) => {
                     const div = document.createElement('div');
                     div.className = 'uni-item';
+                    
+                    // Style status badge
+                    let badgeClass = 'status-red';
+                    if (opt.status === 'Eligible') badgeClass = 'status-green';
+                    else if (opt.status === 'Potential') badgeClass = 'status-yellow';
+                    
+                    div.style.animationDelay = `${0.3 + i * 0.08}s`;
+                    div.style.animation = `fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${0.3 + i * 0.08}s both`;
                     div.innerHTML = `
-                        <h5>${uni.name}</h5>
-                        <div class="uni-course">${uni.course}</div>
-                        <p class="uni-rationale">${uni.rationale}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <h5 style="margin: 0;">${opt.name}</h5>
+                            <span class="status-badge ${badgeClass}" style="font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 700;">${opt.status.toUpperCase()}</span>
+                        </div>
+                        <p class="uni-rationale" style="margin-top: 4px;">${opt.rationale}</p>
                     `;
-                    lstUniversities.appendChild(div);
+                    lstVisaOptions.appendChild(div);
                 });
             } else {
-                lstUniversities.innerHTML = '<div class="uni-rationale">No suitable matches found for this profile. Try adjusting inputs.</div>';
+                lstVisaOptions.innerHTML = '<div class="uni-rationale">No suitable visa pathways found for this profile. Try adjusting inputs.</div>';
             }
 
-            // Render recommendations/warnings
+            // Recommendations
             lstRecommendations.innerHTML = '';
             if (data.recommendations && data.recommendations.length > 0) {
-                data.recommendations.forEach(rec => {
+                data.recommendations.forEach((rec, i) => {
                     const li = document.createElement('li');
                     li.textContent = rec;
+                    li.style.animation = `fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${0.4 + i * 0.06}s both`;
                     lstRecommendations.appendChild(li);
                 });
             } else {
                 lstRecommendations.innerHTML = '<li>Profile meets key visa guidelines. Standard documents required.</li>';
             }
 
-            // Animate Score circular progress
+            // Animate score ring
             setScore(data.score, data.status);
 
+            // Smooth scroll to results on mobile
+            if (window.innerWidth <= 1100) {
+                document.getElementById('resultsPanel').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+
         } catch (error) {
-            console.error("Evaluation error:", error);
-            alert("An error occurred during evaluation. Please verify server connection.");
+            console.error('Evaluation error:', error);
+
+            // Show inline error instead of alert
+            placeholderState.classList.add('hidden');
+            resultsContent.classList.remove('hidden');
+            resultsContent.innerHTML = `
+                <div class="empty-state" style="color: var(--red);">
+                    <div style="font-size: 48px; margin-bottom: 16px;">⚠️</div>
+                    <h3 style="color: var(--red);">Evaluation Failed</h3>
+                    <p style="color: var(--text-muted); margin-top: 8px;">
+                        Could not complete the evaluation. Please verify the server is running and try again.
+                    </p>
+                    <p style="color: var(--text-dim); font-size: 11px; margin-top: 12px; font-family: 'JetBrains Mono', monospace;">
+                        ${error.message}
+                    </p>
+                </div>
+            `;
         } finally {
-            // Restore button
             btnSubmit.disabled = false;
-            spinner.classList.add('hidden');
-            btnText.textContent = "Evaluate Profile";
+            btnText.classList.remove('hidden');
+            btnLoader.classList.add('hidden');
         }
     });
 
-    // Disable English score input if "None" test selected
+    // ── English Test Toggle ──
     const englishTestDropdown = document.getElementById('english_test');
     const englishScoreInput = document.getElementById('english_score');
 
@@ -183,10 +220,33 @@ document.addEventListener('DOMContentLoaded', () => {
             englishScoreInput.value = '0';
             englishScoreInput.disabled = true;
             englishScoreInput.required = false;
+            englishScoreInput.style.opacity = '0.4';
         } else {
             englishScoreInput.disabled = false;
             englishScoreInput.required = true;
             englishScoreInput.value = '';
+            englishScoreInput.style.opacity = '1';
         }
+    });
+
+    // ── Navbar shadow on scroll ──
+    const topNav = document.getElementById('topNav');
+    window.addEventListener('scroll', () => {
+        if (window.scrollY > 20) {
+            topNav.style.boxShadow = '0 8px 32px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.06)';
+        } else {
+            topNav.style.boxShadow = 'none';
+        }
+    }, { passive: true });
+
+    // ── Form input interaction feedback ──
+    document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
+        el.addEventListener('focus', () => {
+            el.closest('.form-group').style.transform = 'translateX(4px)';
+            el.closest('.form-group').style.transition = 'transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        });
+        el.addEventListener('blur', () => {
+            el.closest('.form-group').style.transform = 'translateX(0)';
+        });
     });
 });

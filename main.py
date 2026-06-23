@@ -8,143 +8,33 @@ from typing import List, Dict, Any
 
 # Initialize FastAPI App
 app = FastAPI(
-    title="ScholarScan AI",
-    description="Intelligent Student Eligibility & Course Recommender Agent",
+    title="Visa Eligibility Agent",
+    description="Intelligent Visa Eligibility and Compliance Advisor Agent",
     version="1.0.0"
 )
 
 # Pydantic models for request and response validation
-class StudentProfile(BaseModel):
+class UserProfile(BaseModel):
+    citizenship: str = Field(..., description="Country of citizenship (e.g., India)")
     destination: str = Field(..., description="Target destination country (UK, Canada, USA, Australia)")
-    gpa: float = Field(..., description="Student GPA/CGPA/Percentage score")
-    gpa_scale: str = Field(..., description="GPA Scale: 4, 10, or 100 (percentage)")
-    english_test: str = Field(..., description="English test type (IELTS, PTE, TOEFL, None)")
-    english_score: float = Field(..., description="Overall English test score")
-    budget_lakhs: float = Field(..., description="Annual tuition & living budget in Lakhs INR")
-    gap_years: int = Field(..., description="Number of gap years since last study")
-    work_exp_years: int = Field(..., description="Years of work experience")
-    backlogs: int = Field(..., description="Number of active or cleared backlogs")
+    age: int = Field(..., description="Applicant age in years")
+    education: str = Field(..., description="Highest education level (High School, Bachelor's, Master's, PhD)")
+    work_exp_years: int = Field(..., description="Years of relevant professional work experience")
+    english_test: str = Field(..., description="English language proficiency test (IELTS, PTE, TOEFL, None)")
+    english_score: float = Field(..., description="Overall test score")
+    funds_lakhs: float = Field(..., description="Available income or funds in Lakhs INR")
+    purpose: str = Field(..., description="Purpose of travel (Study, Work, Tourist, PR)")
 
-# Heuristic-based mock evaluation for offline testing
-def get_mock_evaluation(profile: StudentProfile) -> Dict[str, Any]:
-    # Calculate percentage for validation
-    pct = profile.gpa
-    if profile.gpa_scale == "4":
-        pct = (profile.gpa / 4.0) * 100
-    elif profile.gpa_scale == "10":
-        pct = profile.gpa * 9.5  # Standard CBSE conversion
-
-    # Heuristic scoring
-    score = 100
-    risks = []
-    
-    # Academic check
-    if pct < 50:
-        score -= 30
-        risks.append("Low academic percentage (below 50%). Most universities require at least 55% for direct entry.")
-    elif pct < 60:
-        score -= 10
-        risks.append("Academic score is between 50%-60%. May face restrictions or require a foundation program.")
-
-    # English proficiency check
-    if profile.english_test != "None":
-        if profile.english_test == "IELTS" and profile.english_score < 6.0:
-            score -= 15
-            risks.append("IELTS score is below 6.0. Most destinations require a minimum of 6.0 overall with no band less than 5.5.")
-        elif profile.english_test == "PTE" and profile.english_score < 50:
-            score -= 15
-            risks.append("PTE score is below 50. Equivalent English test score is low for direct degree entry.")
-    else:
-        score -= 25
-        risks.append("No English proficiency test score provided. An English test is highly recommended for visa and admissions.")
-
-    # Gap years check
-    if profile.gap_years > 2 and profile.work_exp_years == 0:
-        score -= 20
-        risks.append(f"Significant study gap of {profile.gap_years} years with no documented work experience. Hard to justify for visa.")
-    elif profile.gap_years > 5:
-        score -= 10
-        risks.append(f"Long study gap of {profile.gap_years} years. Will require strong work experience reference letters and tax documents.")
-
-    # Budget check
-    min_budget = {"UK": 15, "Canada": 18, "USA": 25, "Australia": 22}
-    req_budget = min_budget.get(profile.destination, 15)
-    if profile.budget_lakhs < req_budget:
-        score -= 20
-        risks.append(f"Annual budget (₹{profile.budget_lakhs} Lakhs) is below the recommended minimum for {profile.destination} (₹{req_budget} Lakhs/year including living expenses).")
-
-    # Backlogs check
-    if profile.backlogs > 5:
-        score -= 15
-        risks.append(f"High number of backlogs ({profile.backlogs}). Top-tier universities may reject the application.")
-
-    # Final eligibility status
-    status = "Green"
-    if score < 50:
-        status = "Red"
-    elif score < 80:
-        status = "Yellow"
-
-    # Match mock universities
-    unis = []
-    if profile.destination == "UK":
-        if status == "Green":
-            unis = [
-                {"name": "University of Greenwich", "course": "MSc Management", "rationale": "High acceptance rate, fits budget, strong student support."},
-                {"name": "Coventry University", "course": "MSc Data Science", "rationale": "Excellent practical modules, matches GPA and budget."}
-            ]
-        elif status == "Yellow":
-            unis = [
-                {"name": "University of Hertfordshire", "course": "MSc Software Engineering", "rationale": "Accepts moderate CGPA/English scores, good location."},
-                {"name": "BPP University", "course": "MSc Management with Project Management", "rationale": "Highly flexible entry criteria, fits budget."}
-            ]
-        else:
-            unis = [
-                {"name": "Study Group Pathway College", "course": "Pre-Masters Pathway", "rationale": "Required to bridge academic or gap requirements."}
-            ]
-    elif profile.destination == "Canada":
-        if status == "Green":
-            unis = [
-                {"name": "Conestoga College", "course": "Post-Graduate Certificate in Mobile Solutions", "rationale": "Strong co-op options, fits budget."},
-                {"name": "Seneca College", "course": "PG Diploma in Business Analytics", "rationale": "Located in Toronto, great post-study work prospects."}
-            ]
-        else:
-            unis = [
-                {"name": "Northern College", "course": "PG Diploma in Computer Applications", "rationale": "Accepts moderate academic grades and gap profiles."}
-            ]
-    else: # Default/USA/Australia
-        unis = [
-            {"name": f"State University of {profile.destination}", "course": "MS Information Technology", "rationale": "Appropriate for budget and academic standing."}
-        ]
-
-    # Generate write-ups
-    academic_msg = f"Academic score evaluated at {pct:.1f}% equivalent. " + ("Meets direct entry thresholds for most universities." if pct >= 60 else "Requires careful selection of university partners.")
-    english_msg = f"English level: {profile.english_test} {profile.english_score}. " + ("Satisfies direct admission requirements." if profile.english_score >= 6.0 or profile.english_score >= 55 else "Additional pre-sessional English courses may be required.")
-    fin_msg = f"Annual budget of ₹{profile.budget_lakhs} Lakhs. " + ("Sufficient to cover tuition fees and basic living costs." if profile.budget_lakhs >= req_budget else f"Funding is tight. Recommend looking for scholarships or education loans of at least ₹{req_budget - profile.budget_lakhs} Lakhs.")
-    gap_msg = f"Study gap of {profile.gap_years} years. " + ("No gap issues identified." if profile.gap_years <= 2 else "Ensure salary slips and experience letters are fully prepared to prove continuity.")
-
-    return {
-        "status": status,
-        "score": max(10, score),
-        "academic_analysis": academic_msg,
-        "english_analysis": english_msg,
-        "financial_analysis": fin_msg,
-        "gap_analysis": gap_msg,
-        "recommendations": risks if risks else ["Profile looks strong. Keep all transcripts and academic references ready for application."],
-        "matched_universities": unis,
-        "is_mock": True
-    }
-
-from agent_engine import evaluate_student_profile
+from agent_engine import evaluate_visa_profile
 
 @app.post("/api/evaluate")
-async def evaluate_student(profile: StudentProfile):
+async def evaluate_profile(profile: UserProfile):
     try:
-        # Convert Pydantic model to dict and evaluate using RAG agent
-        result = evaluate_student_profile(profile.model_dump())
+        # Evaluate profile using the RAG agent
+        result = evaluate_visa_profile(profile.model_dump())
         return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Agent execution failed: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Agent evaluation failed: {str(e)}")
 
 # Serve index.html at root
 @app.get("/")
@@ -159,7 +49,7 @@ if __name__ == "__main__":
     # Print status message
     has_key = "GEMINI_API_KEY" in os.environ
     print("\n" + "="*50)
-    print("ScholarScan AI - Server Starting")
+    print("Visa Eligibility Agent - Server Starting")
     print(f"Gemini API Key: {'CONNECTED' if has_key else 'NOT DETECTED (Running in Mock Mode)'}")
     print("Open http://localhost:8000 in your browser.")
     print("="*50 + "\n")

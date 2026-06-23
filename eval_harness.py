@@ -1,7 +1,7 @@
 import os
 import sys
 import io
-from agent_engine import evaluate_student_profile
+from agent_engine import evaluate_visa_profile
 
 # Force console output to be UTF-8
 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
@@ -10,77 +10,77 @@ sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
 TEST_SUITE = [
     {
         "id": "TC_001",
-        "description": "Strong UK profile with good budget and no gaps",
+        "description": "Canada Student Profile with IELTS 6.5 and ₹20L funds",
         "profile": {
-            "destination": "UK",
-            "gpa": 8.5,
-            "gpa_scale": "10",
+            "citizenship": "India",
+            "destination": "Canada",
+            "age": 22,
+            "education": "Bachelor's",
+            "work_exp_years": 0,
             "english_test": "IELTS",
             "english_score": 6.5,
-            "budget_lakhs": 25.0,
-            "gap_years": 0,
-            "work_exp_years": 0,
-            "backlogs": 0
+            "funds_lakhs": 20.0,
+            "purpose": "Study"
         },
         "expected_status": "Green",
-        "expected_retrieved_region": "UNITED KINGDOM (UK)"
-    },
-    {
-        "id": "TC_002",
-        "description": "Weak Canadian profile with low GPA, low IELTS, and low budget",
-        "profile": {
-            "destination": "Canada",
-            "gpa": 5.2,
-            "gpa_scale": "10",
-            "english_test": "IELTS",
-            "english_score": 5.0,
-            "budget_lakhs": 12.0,
-            "gap_years": 0,
-            "work_exp_years": 0,
-            "backlogs": 2
-        },
-        "expected_status": "Red",
         "expected_retrieved_region": "CANADA"
     },
     {
-        "id": "TC_003",
-        "description": "Australian profile with standard academics but high study gap",
+        "id": "TC_002",
+        "description": "Australia Work Profile with only 1 year experience (TSS requires 2)",
         "profile": {
+            "citizenship": "India",
             "destination": "Australia",
-            "gpa": 7.2,
-            "gpa_scale": "10",
+            "age": 30,
+            "education": "Bachelor's",
+            "work_exp_years": 1,
             "english_test": "IELTS",
-            "english_score": 6.0,
-            "budget_lakhs": 15.0,
-            "gap_years": 4,
-            "work_exp_years": 0,
-            "backlogs": 0
+            "english_score": 5.5,
+            "funds_lakhs": 6.0,
+            "purpose": "Work"
         },
         "expected_status": "Yellow",
         "expected_retrieved_region": "AUSTRALIA"
     },
     {
-        "id": "TC_004",
-        "description": "Strong US profile meeting all standard benchmarks",
+        "id": "TC_003",
+        "description": "UK Tourist Profile with low funds (₹2L instead of ₹3-5L)",
         "profile": {
+            "citizenship": "India",
+            "destination": "UK",
+            "age": 40,
+            "education": "Master's",
+            "work_exp_years": 10,
+            "english_test": "None",
+            "english_score": 0.0,
+            "funds_lakhs": 2.0,
+            "purpose": "Tourist"
+        },
+        "expected_status": "Yellow",
+        "expected_retrieved_region": "UNITED KINGDOM"
+    },
+    {
+        "id": "TC_004",
+        "description": "USA PR Profile with PhD and 5 years experience",
+        "profile": {
+            "citizenship": "India",
             "destination": "USA",
-            "gpa": 3.6,
-            "gpa_scale": "4",
+            "age": 28,
+            "education": "PhD",
+            "work_exp_years": 5,
             "english_test": "IELTS",
-            "english_score": 7.0,
-            "budget_lakhs": 42.0,
-            "gap_years": 1,
-            "work_exp_years": 1,
-            "backlogs": 0
+            "english_score": 8.0,
+            "funds_lakhs": 15.0,
+            "purpose": "PR"
         },
         "expected_status": "Green",
-        "expected_retrieved_region": "UNITED STATES (USA)"
+        "expected_retrieved_region": "UNITED STATES"
     }
 ]
 
 def run_evaluation_suite():
     print("="*80)
-    print("SCHOLARSCAN AI - EVALUATION HARNESS & REGRESSION TESTS")
+    print("VISA ELIGIBILITY AGENT - EVALUATION HARNESS & REGRESSION TESTS")
     print(f"Test cases to run: {len(TEST_SUITE)}")
     print("="*80 + "\n")
     
@@ -94,9 +94,9 @@ def run_evaluation_suite():
         profile = case["profile"]
         
         # Execute the agent loop
-        prediction = evaluate_student_profile(profile)
+        prediction = evaluate_visa_profile(profile)
         
-        # 1. Verify Bounding Bounding Box Status (Prediction Accuracy)
+        # 1. Verify Status (Prediction Accuracy)
         predicted_status = prediction.get("status", "Unknown")
         status_correct = (predicted_status.lower() == case["expected_status"].lower())
         if status_correct:

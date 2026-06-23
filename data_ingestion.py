@@ -151,7 +151,7 @@ def query_vector_index(query: str, k: int = 3) -> List[Dict[str, Any]]:
         # Fallback to mock query embedding
         query_vector = generate_mock_embedding(query)
         
-    # Score all chunks using Cosine Similarity + Region Keyword Boosting (Metadata Filtering)
+    # Score all chunks using Cosine Similarity + Region & Purpose Keyword Boosting
     scored_chunks = []
     query_lower = query.lower()
     
@@ -166,15 +166,39 @@ def query_vector_index(query: str, k: int = 3) -> List[Dict[str, Any]]:
     elif "usa" in query_lower or "united states" in query_lower:
         boost_region = "UNITED STATES"
         
+    # Detect purpose targets in query
+    boost_purpose = None
+    if "study" in query_lower or "student" in query_lower:
+        boost_purpose = "study"
+    elif "work" in query_lower or "job" in query_lower or "skilled" in query_lower:
+        boost_purpose = "work"
+    elif "tourist" in query_lower or "visitor" in query_lower:
+        boost_purpose = "visitor"
+    elif "pr" in query_lower or "permanent" in query_lower or "ilr" in query_lower:
+        boost_purpose = "pr"
+        
     for item in index_data:
         sim = cosine_similarity(query_vector, item["embedding"])
         
-        # Apply metadata boost
+        # Apply metadata boosts
         chunk_text = item["chunk_text"]
+        chunk_text_lower = chunk_text.lower()
+        
+        # 1. Region Boosting (+0.35)
         if boost_region:
-            # Check if chunk starts with region label like [UNITED KINGDOM]
             if f"[{boost_region}" in chunk_text.upper() or boost_region in chunk_text.upper():
-                sim += 0.35  # Boost score to prioritize correct region guidelines
+                sim += 0.35
+                
+        # 2. Purpose Boosting (+0.25)
+        if boost_purpose:
+            if boost_purpose == "study" and "study" in chunk_text_lower:
+                sim += 0.25
+            elif boost_purpose == "work" and ("work" in chunk_text_lower or "skilled worker" in chunk_text_lower):
+                sim += 0.25
+            elif boost_purpose == "visitor" and ("tourist" in chunk_text_lower or "visitor" in chunk_text_lower):
+                sim += 0.25
+            elif boost_purpose == "pr" and ("pr" in chunk_text_lower or "indefinite" in chunk_text_lower):
+                sim += 0.25
                 
         scored_chunks.append({
             "chunk_text": chunk_text,
